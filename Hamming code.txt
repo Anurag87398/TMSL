@@ -1,0 +1,69 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#include<string.h>
+
+// ------------------------------------------EVEN PARITY SERVER------------------------
+
+void main() {
+    //Finding out the no. of parity bits needed
+    //2^p >= p + m + 1
+    //p= parity bits count
+    //m= message/data bits count
+    char msg[]= "1101";
+    int m= strlen(msg), p=0;
+    while(pow(2,p)<p+m+1)
+        p++;
+    // printf("No. of parity bits needed: %d", p);
+    
+    //***placing the data and parity bits in final msg****
+    
+    int len= m+p;   //total length of message
+    // printf("Length of final_msg: %d\n", len);
+    int og_msg_c= 0;   //original message counter
+    char final_msg[len];
+    for(int i=0; i<len; i++){
+        //if i is power of 2 ==> parity bit will be placed
+        if(ceil(log2(len-i)) == floor(log2(len-i)))     //(len-i) since i is going from 0 to n (left to right), but in reality we check from n to 1 (right to left)
+            final_msg[i]= '-';
+        //else ==> data bit will be placed
+        else
+            final_msg[i]= msg[og_msg_c++];
+    }
+    final_msg[len]= '\0';
+    printf("Final msg with - at parity bits: %s\n", final_msg);
+    
+    //***calculating the parity bits
+    int bits_calculated= 0;
+    while(bits_calculated != p){
+        //for a parity no. (2), we will start checking from that parity no. [2(010)], 
+        // we'll check the adjacent bits till that parity no. (2,3 ==> 2 bits) 
+        // then take a gap (d) equal to that parity no. as well (after (2,3) check (6,7) thus skipped (4,5))
+        //we'll continue this as long as we need
+        
+        // int d= bits_calculated+1;   //getting the parity no.
+        int d= pow(2, bits_calculated);
+        int i= d;
+        int one_count= 0;
+        while(i<=len){
+            int j= 0;
+            //j is checking the adjacent bits
+            while(j<d){
+                if(final_msg[len- (i+j)]== '1')
+                    one_count++;
+                j++;
+            }
+            i= i+ 2*d;       //getting the next adjacent bits batch
+        }
+        //putting value of the parity bit
+        if(one_count%2==0)
+            final_msg[len-d]= '0';
+        else
+            final_msg[len-d]= '1';
+        printf("Final msg after placing parity no. %d: %s\n", bits_calculated+1, final_msg);
+        bits_calculated++;
+    }
+    
+    printf("Final msg: %s\n", final_msg);
+}
